@@ -1,0 +1,91 @@
+{% extends "app/layout.html" %}
+
+{% block body %}
+<style>
+    img {
+        width: 50px;
+    }
+</style>
+
+{% if museum %}
+<h1>Paintings in {{ museum }}</h1>
+{% elif q %}
+<h1>Search results for "{{ q }}"</h1>
+{% endif %}
+<ul class="gallery">
+    {% for painting in paintings %}
+        <li data-id="{{ painting.id }}">
+            <figure>
+                <img src="{{ painting.image.url }}"></img>
+                <figcaption>{{ painting.title }}<br><i>{{ painting.artist }} &#xB7; {{ painting.creation_year }}</i></figcaption>
+            </figure>
+
+        </li>
+    {% endfor %}
+</ul>
+
+<dialog id="imgdetails">
+    <form action="dialog">
+        <div class="top-bar">
+            <button value="cancel" formmethod="dialog">X</button><br>
+        </div>
+        <div class="dialog-content">
+            <div class="dialog-image">
+                <img src="" alt="">
+            </div>
+            <div class="dialog-info">
+                <h1>Loading...</h1>
+                <h2 class="subheading"></h2>
+                <p></p>
+            </div>
+        </div>
+    </form>
+</dialog>
+{% endblock %}
+
+{% block head %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const dialog = document.getElementById('imgdetails');
+
+    dialog.querySelector('.dialog-image').addEventListener('click', function() {
+        document.querySelector('.dialog-content').classList.toggle('expanded');
+    });
+
+    const dialogInfos = {
+        title: dialog.querySelector('h1'),
+        subheading: dialog.querySelector('h2'),
+        description: dialog.querySelector('p'),
+        img: dialog.querySelector('img'),
+    }
+
+    document.querySelectorAll('.gallery > li').forEach(el => {
+        el.onclick = () => {
+            dialogInfos.title.innerText = 'Loading...';
+            dialogInfos.subheading.innerText = '';
+            dialogInfos.description.innerText = '';
+            dialogInfos.img.src = '';
+
+            dialog.showModal();
+
+            // creation_year
+            // value
+            // is_on_display
+            // artist
+            // museum
+
+            fetch('/api/painting/' + el.dataset.id)
+                .then(response => response.json())
+                .then(r => {
+                    dialogInfos.title.innerHTML = r.title;
+                    dialogInfos.subheading.innerHTML = `${r.creation_year} &#xB7; ${r.artist}`;
+                    dialogInfos.description.innerHTML = `<i>${r.value/100}$ - currently ${r.is_on_display ? "on" : "not on"} display</i><br><br>${r.description.replace('.', '.<br><br>')}`;
+                    dialogInfos.img.src = r.image;
+                });
+
+        }
+    });
+});
+</script>
+{% endblock %}

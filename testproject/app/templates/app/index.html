@@ -1,0 +1,52 @@
+{% extends "app/layout.html" %}
+
+{% block body %}
+<h1>Museums</h1>
+<ul class="locations">
+    {% for museum in museums %}
+        <li><a href="{% url 'paintings' museum.id %}"><h2>{{ museum.name }}</h2><div>{{ museum.address }}</div></a></li>
+    {% endfor %}
+</ul>
+
+<br>
+<form class="search-box" action="{% url 'search' %}" method="get">
+    <input type="text" name="q" placeholder="Search for painting or artist" id="search-input">
+    <button type="submit">Search</button>
+</form>
+
+<div class="img-throw fix-below"><div>🎆</div></div>
+<div class="img-throw fix-below"><div>🎇</div></div>
+<div class="img-throw fix-below"><div>🌠</div></div>
+<div class="img-throw fix-below"><div>🌁</div></div>
+<div class="img-throw fix-below"><div>🖼️</div></div>
+<div class="img-throw fix-below"><div>🎨</div></div>
+<div class="img-throw fix-below"><div>👩‍🎨</div></div>
+<div class="img-throw fix-below"><div>🧑‍🎨</div></div>
+<div class="img-throw fix-below"><div>👨‍🎨</div></div>
+{% endblock %}
+
+{% block head %}
+<script>
+    const startAnimation = (el) => {
+        el.style.left = Math.round(Math.random() * window.innerWidth) + 'px';
+        el.style.animationPlayState = 'running';
+    };
+
+    const animationStopped = (evt) => {
+        evt.target.style.animationPlayState = 'stopped';
+        evt.target.classList.remove('img-throw');
+        setTimeout(() => {
+            // startAnimation(evt.target);
+            evt.target.style.left = Math.round(Math.random() * window.innerWidth) + 'px';
+            evt.target.classList.add('img-throw');
+        }, Math.random() * 1000 * 10 + 300);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.img-throw').forEach(el => {
+            el.addEventListener('animationend', animationStopped);
+            setTimeout(() => startAnimation(el), Math.random() * 1000 * 5);
+        });
+    });
+</script>
+{% endblock %}
