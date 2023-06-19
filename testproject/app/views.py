@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http.response import JsonResponse
 from .models import Artist, Museum, Painting
 from django.utils.html import escape
+from django.db import models
 
 # index
 def list_museums(request):
@@ -21,9 +22,13 @@ def list_museum_paintings(request, museum_id):
 # search for painting or artist
 def search(request):
     q = request.GET.get('q')
-    paintings = Painting.objects.filter(title__icontains=q)
-    return render(request, 'app/paintings.html', { 'q': q, 'paintings': paintings })
+    paintings = Painting.objects.filter(
+        models.Q(title__icontains=q) | models.Q(artist__first_name__icontains=q) | models.Q(artist__last_name__icontains=q)
+    )
+    if not paintings.exists():
+        return render(request, 'app/paintings.html', {'q': q, 'paintings': [], 'no_paintings_found': True})
 
+    return render(request, 'app/paintings.html', {'q': q, 'paintings': paintings})
 
 # return json data of painting
 def painting_info(request, painting_id):

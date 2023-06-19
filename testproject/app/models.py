@@ -10,8 +10,8 @@ class Artist(models.Model):
     image = models.ImageField(upload_to='artists', default='default.jpg')
 
     def is_alive(self):
-        return self.year_died is not None
-    
+        return self.year_died is None
+
     def is_older_than(self, number_of_years):
         return self.year_born <= datetime.now.year() - 100
     

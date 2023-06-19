@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from .models import Artist, Museum, Painting
 import html
-from django.utils.html import escape
 
 
 # Run this specific test class with
@@ -56,12 +55,14 @@ class DatabaseTest(TestCase):
         artist = Artist.objects.get(first_name='Leonardo')
         self.assertEqual(artist.last_name, 'da Vinci')
         self.assertEqual(str(artist), 'Leonardo da Vinci')
-        self.assertTrue(artist.is_alive())
+        self.assertFalse(artist.is_alive())
+        print(artist.is_alive())
 
         artist = Artist.objects.get(first_name='Cindy')
         self.assertIsNone(artist.year_died)
         self.assertEqual(str(artist), 'Cindy Sherman')
-        self.assertFalse(artist.is_alive())
+        self.assertTrue(artist.is_alive())
+        print(artist.is_alive())
 
     def test_museum(self):
         museum1 = Museum.objects.get(name='Le Louvre')
@@ -209,8 +210,9 @@ class ViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Mona Lisa')
         response = self.client.get(reverse('search'), {'q': 'Leonardo'})
+
         self.assertEqual(response.status_code, 200)
-        #self.assertContains(response, 'Mona Lisa')
+        self.assertContains(response, 'Mona Lisa')
         response = self.client.get(reverse('search'), {'q': 'L'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Mona Lisa')
@@ -220,7 +222,7 @@ class ViewTest(TestCase):
         # make sure "No paintings found" is displayed in the output
         response = self.client.get(reverse('search'), {'q': 'Non-existent painting'})
         self.assertEqual(response.status_code, 200)
-        #self.assertContains(response, 'No paintings found')
+        self.assertContains(response, 'No paintings found')
 
 
     def test_painting_info(self):
